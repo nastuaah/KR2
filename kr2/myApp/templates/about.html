@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center" style="color: #a4c700; margin-top: -70px;">Я и моя образовательная программа</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-4 text-center">
+            <img src="{{ student.photo.url }}" alt="Фото {{ student.name }}" class="img-fluid rounded shadow-sm" style="border-radius: 15px; max-height: 80%;">
+        </div>
+        <div class="col-md-8" style="margin-top: 20px;">
+            <h3>{{ student.name }}</h3>
+            <p><strong>Email:</strong> {{ student.email }}</p>
+            <p><strong>Телефон:</strong> {{ student.phone }}</p>
+            <h4>{{ student.program }}</h4>
+            <p>{{ student.program_description }}</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-3 rounded shadow-sm" style="background-color: #f8d9e1; border: 1px solid black; margin-top: 20px;">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" name="name" class="form-control" placeholder="Фильтр по имени" value="{{ filters.name }}">
+                        </div>
+                        <div class="col-md-4">
+                            <select name="sort" class="form-select">
+                                <option value="">Сортировка</option>
+                                <option value="name" {% if filters.sort == 'name' %}selected{% endif %}>По имени (А-Я)</option>
+                                <option value="-name" {% if filters.sort == '-name' %}selected{% endif %}>По имени (Я-А)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <button type="submit" class="btn text-white w-100" style="background-color: #a4c700;">Применить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <h3 class="text-center" style="color: #a4c700;">Преподаватели</h3>
+        {% for teacher in teachers %}
+        <div class="col-md-6 mb-4">
+            <div class="p-4 border border-dark rounded shadow-sm" style="background-color: #f8d9e1;">
+                <div class="text-center">
+                    <img src="{{ teacher.photo.url }}" alt="Фото {{ teacher.name }}" class="img-fluid rounded shadow-sm" style="border-radius: 15px; max-height: 200px; max-width: 200px;">
+                </div>
+                <h5 class="text-center mt-2">{{ teacher.name }}</h5>
+                <p class="text-center"><strong>Email:</strong> {{ teacher.email }}</p>
+                <p class="text-center"><strong>Предметы:</strong> {{ teacher.subjects }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning">Преподаватели не найдены</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="text-center mt-4" style="color: #a4c700;">Мои сокурсники</h3>
+
+    <div class="row">
+        {% for classmate in classmates %}
+        <div class="col-md-6 mb-4">
+            <div class="p-4 border border-dark rounded shadow-sm" style="background-color: #f8d9e1;">
+                <div class="text-center">
+                    <img src="{{ classmate.photo.url }}" alt="Фото {{ classmate.name }}" class="img-fluid rounded shadow-sm" style="border-radius: 15px; max-height: 200px; max-width: 200px;">
+                </div>
+                <h5 class="text-center mt-2">{{ classmate.name }}</h5>
+                <p class="text-center"><strong>Email:</strong> {{ classmate.email }}</p>
+                <p class="text-center"><strong>Телефон:</strong> {{ classmate.phone }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning">Сокурсники не найдены</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border: 1px solid black;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: black;
+        box-shadow: 0 0 0 0.25rem rgba(164, 199, 0, 0.25);
+    }
+    .btn:hover {
+        background-color: #8bad00 !important;
+    }
+</style>
+{% endblock %}

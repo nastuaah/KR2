@@ -1,0 +1,11 @@
+.card-img-top {
+    object-fit: cover;
+    width: 250px;
+    height: 400px;
+}
+
+
+.navbar .nav-link.active {
+    font-weight: bold;
+}
+

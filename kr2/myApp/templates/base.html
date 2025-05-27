@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цветочный магазин</title>
+    <link href="/static/styles.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f8d9e1;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'myApp:home' %}">
+            <img src="{% static 'base.png' %}" alt="Logo" width="40" height="40">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Переключить навигацию">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse lead" id="navbarNav" >
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                       href="{% url 'myApp:home' %}">Главная</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'catalogue' %}active{% endif %}"
+                       href="{% url 'myApp:catalogue' %}">Каталог</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
+                      href="{% url 'myApp:contacts' %}">Контакты</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+                      href="{% url 'myApp:about' %}">Обо мне</a>
+                </li>
+            </ul>
+       </div>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-4">
+    {% block content %}{% endblock %}
+</div>
+
+<div>
+    {% block footer %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

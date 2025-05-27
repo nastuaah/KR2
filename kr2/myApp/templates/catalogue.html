@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center" style="margin-top: -80px; color: #a4c700; margin-bottom: 20px;">Каталог букетов</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="get" action="{% url 'myApp:catalogue' %}" class="form-inline">
+                <div class="input-group w-100">
+                    <input type="text" class="form-control" name="search" placeholder="Поиск по названию..." value="{{ search_query }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success" type="submit" style="color: #a4c700; border-color: #a4c700;">Найти</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    <div class="col-md-6">
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Сортировать
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+            <li><a class="dropdown-item {% if current_sort == 'name_asc' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}sort=name_asc">По названию (А-Я)</a></li>
+            <li><a class="dropdown-item {% if current_sort == 'name_desc' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}sort=name_desc">По названию (Я-А)</a></li>
+            <li><a class="dropdown-item {% if current_sort == 'price_asc' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}sort=price_asc">По цене (сначала дешевые)</a></li>
+            <li><a class="dropdown-item {% if current_sort == 'price_desc' %}active{% endif %}" href="?{% if search_query %}search={{ search_query }}&{% endif %}sort=price_desc">По цене (сначала дорогие)</a></li>
+        </ul>
+    </div>
+</div>
+
+
+    <div class="row" style="margin-top: 30px;">
+        {% for bouquet in bouquets %}
+        <div class="col-md-4 mb-4">
+            <div class="card border-white">
+                <img src="{{ bouquet.image.url }}" class="card-img-top rounded" alt="{{ bouquet.name }}" style="border-radius: 15px; height: 300px; object-fit: cover;">
+                <div class="card-body text-center">
+                    <h5 class="card-title lead">{{ bouquet.name }}</h5>
+                    <p class="card-text lead">{{ bouquet.price }} руб.</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-center">Букеты не найдены.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center" style="color: #a4c700; margin-top: -80px; margin-bottom: 20px;">Наши контакты</h1>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="p-4 rounded shadow-sm mb-4" style="background-color: #f8d9e1; border: 1px solid black;">
+                <div class="mt-3 lead">
+                    <p><i class="bi bi-telephone me-2"></i><strong>Телефон:</strong> {{ shop_info.phone }}</p>
+                    <p><i class="bi bi-geo-alt me-2"></i><strong>Адрес:</strong> {{ shop_info.address }}</p>
+                    <p><i class="bi bi-clock me-2"></i><strong>Режим работы:</strong> {{ shop_info.working_hours }}</p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded shadow-sm" style="background-color: #f8d9e1; border: 1px solid black;">
+                <h2 class="text-center mb-4" style="color: #a4c700;">Оставьте заявку</h2>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" id="order-form" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Фамилия*</label>
+                            <input type="text" name="last_name" class="form-control" required
+                                pattern="[А-ЯЁ][А-Яа-яЁё\s\-]*"
+                                title="Фамилия должна начинаться с заглавной буквы и содержать только буквы, пробелы и дефисы">
+                            <div class="invalid-feedback">Фамилия должна начинаться с заглавной буквы и содержать только буквы, пробелы и дефисы</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Имя*</label>
+                            <input type="text" name="first_name" class="form-control" required
+                                pattern="[А-ЯЁ][А-Яа-яЁё\s\-]*"
+                                title="Имя должно начинаться с заглавной буквы и содержать только буквы, пробелы и дефисы">
+                            <div class="invalid-feedback">Имя должно начинаться с заглавной буквы и содержать только буквы, пробелы и дефисы</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Телефон*</label>
+                            <input type="tel" name="phone" class="form-control" required
+                                pattern="\+7\(\d{3}\)\d{3}-\d{2}-\d{2}"
+                                placeholder="+7(XXX)XXX-XX-XX">
+                            <div class="invalid-feedback">Пожалуйста, введите телефон в формате +7(XXX)XXX-XX-XX</div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Букет*</label>
+                            <select name="bouquet" class="form-select" id="bouquet-select" required>
+                                <option value="" selected disabled>Выберите букет</option>
+                                {% for bouquet in bouquets %}
+                                    <option value="{{ bouquet.id }}" data-price="{{ bouquet.price }}">{{ bouquet.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Пожалуйста, выберите букет</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Цена</label>
+                            <input type="text" id="bouquet-price" class="form-control" readonly>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Комментарий</label>
+                            <textarea name="comment" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-12 text-center mt-3">
+                            <button type="submit" class="btn btn-lg text-white" style="background-color: #a4c700;">
+                                Отправить заявку
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            {% if shop_info.image %}
+                <img src="{{ shop_info.image.url }}" alt="Наш магазин" class="img-fluid rounded shadow-sm">
+            {% else %}
+                <img src="{% static 'info.jpg' %}" alt="Наш магазин" class="img-fluid rounded shadow-sm">
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <h2 class="text-center mb-4" style="color: #a4c700;">Поиск клиента</h2>
+        <div class="col-12">
+            <div class="p-4 rounded shadow-sm" style="background-color: #f8d9e1; border: 1px solid black;">
+                <form method="get" action="">
+                    <div class="input-group mb-3">
+                        <input type="text" name="search" class="form-control"
+                               placeholder="Введите фамилию клиента"
+                               value="{{ search_query }}">
+                        <button class="btn text-white" type="submit"
+                                style="background-color: #a4c700;">Поиск</button>
+                    </div>
+
+                    {% if client_orders %}
+                    <div class="mt-3">
+                        <label class="form-label">Показать:</label>
+                        <div class="btn-group" role="group">
+                            <a href="?search={{ search_query }}&show=all" class="btn btn-outline-secondary {% if not request.GET.show or request.GET.show == 'all' %}active{% endif %}">Все заказы</a>
+                            <a href="?search={{ search_query }}&show=expensive" class="btn btn-outline-secondary {% if request.GET.show == 'expensive' %}active{% endif %}">Самый дорогой</a>
+                            <a href="?search={{ search_query }}&show=cheap" class="btn btn-outline-secondary {% if request.GET.show == 'cheap' %}active{% endif %}">Самый дешевый</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </form>
+
+                {% if search_query %}
+                    {% if client_orders %}
+                        <div class="table-responsive mt-3">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Фамилия</th>
+                                        <th>Имя</th>
+                                        <th>Телефон</th>
+                                        <th>Букет</th>
+                                        <th>Цена</th>
+                                        <th>Комментарий</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if request.GET.show == 'expensive' and expensive_order %}
+                                    <tr style="background-color: #fffacd;">
+                                        <td>{{ expensive_order.created_at|date:"d.m.Y H:i" }}</td>
+                                        <td>{{ expensive_order.last_name }}</td>
+                                        <td>{{ expensive_order.first_name }}</td>
+                                        <td>{{ expensive_order.phone }}</td>
+                                        <td>{{ expensive_order.bouquet.name|default:"-" }}</td>
+                                        <td>{{ expensive_order.price }} руб.</td>
+                                        <td>{{ expensive_order.comment|truncatechars:30 }}</td>
+                                    </tr>
+                                    {% elif request.GET.show == 'cheap' and cheap_order %}
+                                    <tr style="background-color: #fffacd;">
+                                        <td>{{ cheap_order.created_at|date:"d.m.Y H:i" }}</td>
+                                        <td>{{ cheap_order.last_name }}</td>
+                                        <td>{{ cheap_order.first_name }}</td>
+                                        <td>{{ cheap_order.phone }}</td>
+                                        <td>{{ cheap_order.bouquet.name|default:"-" }}</td>
+                                        <td>{{ cheap_order.price }} руб.</td>
+                                        <td>{{ cheap_order.comment|truncatechars:30 }}</td>
+                                    </tr>
+                                    {% else %}
+                                        {% for order in client_orders %}
+                                        <tr>
+                                            <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                                            <td>{{ order.last_name }}</td>
+                                            <td>{{ order.first_name }}</td>
+                                            <td>{{ order.phone }}</td>
+                                            <td>{{ order.bouquet.name|default:"-" }}</td>
+                                            <td>{{ order.price }} руб.</td>
+                                            <td>{{ order.comment|truncatechars:30 }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    {% else %}
+                        <div class="alert alert-warning mt-3">
+                            Заказы клиента с фамилией "{{ search_query }}" не найдены.
+                            Попробуйте ввести часть фамилии.
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <h2 class="text-center mb-4" style="color: #a4c700;">Статистика заказов</h2>
+        <div class="col-md-4">
+            <div class="p-3 rounded shadow-sm text-center" style="background-color: #f8d9e1; border: 1px solid black;">
+                <h3>{{ order_stats.total_orders|default:0 }}</h3>
+                <p class="mb-0">Всего заказов</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 rounded shadow-sm text-center" style="background-color: #f8d9e1; border: 1px solid black;">
+                <h3>{{ order_stats.total_revenue|default:0 }} руб.</h3>
+                <p class="mb-0">Общая выручка</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 rounded shadow-sm text-center" style="background-color: #f8d9e1; border: 1px solid black;">
+                <h3>{{ order_stats.avg_order|default:0|floatformat:2 }} руб.</h3>
+                <p class="mb-0">Средний чек</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <h2 class="text-center mb-4" style="color: #a4c700;">Последние заявки</h2>
+        <div class="col-12">
+            <div class="p-4 rounded shadow-sm" style="background-color: #f8d9e1; border: 1px solid black; margin-bottom: 30px;">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Фамилия</th>
+                                <th>Имя</th>
+                                <th>Телефон</th>
+                                <th>Букет</th>
+                                <th>Цена</th>
+                                <th>Комментарий</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in contact_requests %}
+                            <tr>
+                                <td>{{ request.created_at|date:"d.m.Y H:i" }}</td>
+                                <td>{{ request.last_name }}</td>
+                                <td>{{ request.first_name }}</td>
+                                <td>{{ request.phone }}</td>
+                                <td>{{ request.bouquet.name|default:"-" }}</td>
+                                <td>{{ request.price|default:"-" }} руб.</td>
+                                <td>{{ request.comment|truncatechars:30 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">Нет заявок</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border: 1px solid black;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: black;
+        box-shadow: 0 0 0 0.25rem rgba(164, 199, 0, 0.25);
+    }
+    .btn:hover {
+        background-color: #8bad00 !important;
+    }
+    .table {
+        background-color: white;
+        border: 1px solid #dee2e6;
+    }
+    .table th {
+        background-color: #a4c700;
+        color: white;
+    }
+    .input-group .form-control:focus {
+        border-color: black;
+        box-shadow: none;
+    }
+    .input-group .btn:hover {
+        background-color: #8bad00 !important;
+    }
+    .btn-group .btn.active {
+        background-color: #a4c700;
+        color: white;
+    }
+    .was-validated .form-control:invalid,
+    .was-validated .form-select:invalid {
+        border-color: #dc3545;
+        background-image: none;
+    }
+    .was-validated .form-control:valid,
+    .was-validated .form-select:valid {
+        border-color: #198754;
+        background-image: none;
+    }
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+        font-size: 0.875em;
+    }
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .was-validated .form-select:invalid ~ .invalid-feedback {
+        display: block;
+    }
+    label:after {
+        content: " *";
+        color: red;
+        display: none;
+    }
+    label[for]:after {
+        display: inline;
+    }
+    label[for="id_comment"]:after {
+        display: none;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('order-form');
+
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        form.classList.add('was-validated');
+    }, false);
+
+    const bouquetSelect = document.getElementById('bouquet-select');
+    const bouquetPrice = document.getElementById('bouquet-price');
+
+    bouquetSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            const price = selectedOption.getAttribute('data-price');
+            bouquetPrice.value = price ? price + ' руб.' : '';
+        } else {
+            bouquetPrice.value = '';
+        }
+    });
+
+    const phoneInput = document.querySelector('input[name="phone"]');
+
+    phoneInput.addEventListener('input', function(e) {
+        let value = this.value.replace(/\D/g, '');
+
+        if (value.length > 0 && (value[0] === '7' || value[0] === '8')) {
+            value = '7' + value.substring(1);
+        }
+
+        let formattedValue = '';
+
+        if (value.length > 0) {
+            formattedValue = '+7(';
+
+            if (value.length > 1) {
+                formattedValue += value.substring(1, 4);
+            }
+
+            if (value.length > 4) {
+                formattedValue += ')' + value.substring(4, 7);
+            }
+
+            if (value.length > 7) {
+                formattedValue += '-' + value.substring(7, 9);
+            }
+
+            if (value.length > 9) {
+                formattedValue += '-' + value.substring(9, 11);
+            }
+        }
+
+        this.value = formattedValue;
+    });
+
+    if (bouquetSelect.value) {
+        bouquetSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+{% endblock %}
